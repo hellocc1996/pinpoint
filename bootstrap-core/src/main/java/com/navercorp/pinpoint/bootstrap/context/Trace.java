@@ -58,8 +58,6 @@ public interface Trace extends StackOperation {
 
     boolean canSampled();
 
-    boolean canReported();
-
     boolean isRoot();
 
     boolean isAsync();

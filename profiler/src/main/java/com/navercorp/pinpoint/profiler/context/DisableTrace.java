@@ -98,12 +98,6 @@ public class DisableTrace implements Trace {
     }
 
     @Override
-    public boolean canReported() {
-        // always return false
-        return false;
-    }
-
-    @Override
     public boolean isRoot() {
         return false;
     }

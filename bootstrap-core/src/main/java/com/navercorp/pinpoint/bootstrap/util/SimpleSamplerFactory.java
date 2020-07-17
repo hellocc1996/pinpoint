@@ -65,12 +65,9 @@ public class SimpleSamplerFactory {
 
         @Override
         public boolean isSampling() {
-            //todo 暂时修改成全部采样
-            return true;
-
-//            int samplingCount = MathUtils.fastAbs(counter.getAndIncrement());
-//            int isSampling = samplingCount % samplingRate;
-//            return isSampling == 0;
+            int samplingCount = MathUtils.fastAbs(counter.getAndIncrement());
+            int isSampling = samplingCount % samplingRate;
+            return isSampling == 0;
         }
     }
 }

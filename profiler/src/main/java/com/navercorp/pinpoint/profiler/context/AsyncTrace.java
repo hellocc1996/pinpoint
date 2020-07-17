@@ -75,11 +75,6 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public boolean canReported() {
-        return trace.canReported();
-    }
-
-    @Override
     public boolean isRoot() {
         return this.traceRoot.getTraceId().isRoot();
     }

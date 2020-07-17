@@ -42,8 +42,6 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
 
     private final boolean sampling;
 
-    private  boolean reporting;
-
     private final CallStack callStack;
 
     private final Storage storage;
@@ -73,6 +71,7 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
         this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder must not be null");
         this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder must not be null");
         this.activeTraceHandle = Assert.requireNonNull(activeTraceHandle, "activeTraceHandle must not be null");
+
         setCurrentThread();
     }
 
@@ -151,11 +150,6 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
 
         if (spanEvent.isTimeRecording()) {
             spanEvent.markAfterTime();
-        }
-
-        //根据report判断是否上报
-        if(!reporting){
-            return;
         }
         logSpan(spanEvent);
     }
@@ -248,11 +242,6 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
         return this.sampling;
     }
 
-    @Override
-    public boolean canReported() {
-        return this.reporting;
-    }
-
     public boolean isRoot() {
         return getTraceId().isRoot();
     }
@@ -317,10 +306,6 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
     @Override
     public TraceScope addScope(String name) {
         return scopePool.add(name);
-    }
-
-    public void setReporting(boolean reporting) {
-        this.reporting = reporting;
     }
 
     @Override

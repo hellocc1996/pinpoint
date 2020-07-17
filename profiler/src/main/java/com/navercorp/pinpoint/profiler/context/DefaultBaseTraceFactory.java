@@ -87,13 +87,11 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final CallStack callStack = callStackFactory.newCallStack(traceRoot);
 
         final boolean samplingEnable = true;
-        final boolean reportingEnable = true;
         final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), samplingEnable);
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder();
         final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
 
         final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, samplingEnable, spanRecorder, wrappedSpanEventRecorder, handle);
-        trace.setReporting(reportingEnable);
         return trace;
     }
 
@@ -111,12 +109,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     @Override
     public Trace newTraceObject() {
         // TODO need to modify how to inject a datasender
-
-        //把采样比例赋值给上报比例，修改是否采样为true
-        boolean sampling = sampler.isSampling();
-        final boolean reporting=sampling;
-        sampling=true;
-
+        final boolean sampling = sampler.isSampling();
         if (sampling) {
             final TraceRoot traceRoot = traceRootFactory.newTraceRoot();
             final Span span = spanFactory.newSpan(traceRoot);
@@ -131,8 +124,6 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
             final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
             final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, sampling, spanRecorder, wrappedSpanEventRecorder, handle);
 
-            //赋值是否上报
-            trace.setReporting(reporting);
             return trace;
         } else {
             return newDisableTrace();
@@ -149,12 +140,12 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final CallStack callStack = callStackFactory.newCallStack(traceRoot);
 
         final boolean samplingEnable = true;
-        final boolean reportingEnable = true;
         final SpanRecorder spanRecorder = recorderFactory.newTraceRootSpanRecorder(traceRoot, samplingEnable);
 
         final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder();
 
-        final Trace asyncTrace = new AsyncChildTrace(traceRoot, callStack, storage, asyncContextFactory, samplingEnable,reportingEnable, spanRecorder, wrappedSpanEventRecorder, asyncId, asyncSequence);
+        final Trace asyncTrace = new AsyncChildTrace(traceRoot, callStack, storage, asyncContextFactory, samplingEnable, spanRecorder, wrappedSpanEventRecorder, asyncId, asyncSequence);
+
         return asyncTrace;
     }
 
@@ -172,7 +163,6 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     public Trace continueAsyncTraceObject(final TraceId traceId) {
 
         final boolean sampling = true;
-        final boolean reporting=true;
 
         final TraceRoot traceRoot = traceRootFactory.continueTraceRoot(traceId);
         final Span span = spanFactory.newSpan(traceRoot);
@@ -188,8 +178,6 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
 
         final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, sampling, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
-        //赋值
-        trace.setReporting(reporting);
 
         final AsyncTrace asyncTrace = new AsyncTrace(asyncContextFactory, traceRoot, trace, asyncState);
 
@@ -201,11 +189,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     @Override
     public Trace newAsyncTraceObject() {
 
-        //把采样比例赋值给上报比例，修改是否采样为true
-        boolean sampling = sampler.isSampling();
-        final boolean reporting=sampling;
-        sampling=true;
-
+        final boolean sampling = sampler.isSampling();
         if (sampling) {
 
             final TraceRoot traceRoot = traceRootFactory.newTraceRoot();
@@ -225,10 +209,9 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
 
             final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, sampling, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
-            //赋值
-            trace.setReporting(reporting);
 
             final AsyncTrace asyncTrace = new AsyncTrace(asyncContextFactory, traceRoot, trace, asyncState);
+
             return asyncTrace;
         } else {
             return newDisableTrace();
