@@ -36,6 +36,8 @@ public class AsyncChildTrace implements Trace {
 
     private final boolean sampling;
 
+    private final boolean reporting;
+
     private final CallStack callStack;
 
     private final Storage storage;
@@ -53,14 +55,31 @@ public class AsyncChildTrace implements Trace {
     private final int asyncId;
     private final short asyncSequence;
 
-    public AsyncChildTrace(final TraceRoot traceRoot, CallStack callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling,
-                             SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final int asyncId, final short asyncSequence) {
+//    public AsyncChildTrace(final TraceRoot traceRoot, CallStack callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling,
+//                             SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final int asyncId, final short asyncSequence) {
+//
+//        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+//        this.callStack = Assert.requireNonNull(callStack, "callStack must not be null");
+//        this.storage = Assert.requireNonNull(storage, "storage must not be null");
+//        this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
+//        this.sampling = sampling;
+//        this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder must not be null");
+//        this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder must not be null");
+//        this.asyncId = asyncId;
+//        this.asyncSequence = asyncSequence;
+//
+//        traceBlockBegin(ASYNC_BEGIN_STACK_ID);
+//    }
+
+    public AsyncChildTrace(final TraceRoot traceRoot, CallStack callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling,boolean reporting,
+                           SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final int asyncId, final short asyncSequence) {
 
         this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
         this.callStack = Assert.requireNonNull(callStack, "callStack must not be null");
         this.storage = Assert.requireNonNull(storage, "storage must not be null");
         this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
         this.sampling = sampling;
+        this.reporting = reporting;
         this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder must not be null");
         this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder must not be null");
         this.asyncId = asyncId;
@@ -103,6 +122,11 @@ public class AsyncChildTrace implements Trace {
     @Override
     public boolean canSampled() {
         return sampling;
+    }
+
+    @Override
+    public boolean canReported() {
+        return reporting;
     }
 
     @Override
@@ -282,7 +306,7 @@ public class AsyncChildTrace implements Trace {
             return spanEvent.getStackId();
         }
     }
-
+    
     @Override
     public TraceScope getScope(String name) {
         return scopePool.get(name);
