@@ -145,6 +145,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean samplingEnable = true;
     private int samplingRate = 1;
 
+    // Reporting
+    private int reportingRate = 1;
+
     // span buffering
     private boolean ioBufferingEnable;
     private int ioBufferingBufferSize;
@@ -361,6 +364,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public int getReportingRate() {
+        return reportingRate;
+    }
+
+    @Override
     public boolean isIoBufferingEnable() {
         return ioBufferingEnable;
     }
@@ -537,6 +545,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
+
+        this.reportingRate = readInt("profiler.reporting.rate", 1);
 
         // configuration for sampling and IO buffer 
         this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
@@ -723,6 +733,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", maxSqlBindValueSize=").append(maxSqlBindValueSize);
         sb.append(", samplingEnable=").append(samplingEnable);
         sb.append(", samplingRate=").append(samplingRate);
+        sb.append(", reportingRate=").append(reportingRate);
         sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
         sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
         sb.append(", profileJvmVendorName='").append(profileJvmVendorName).append('\'');

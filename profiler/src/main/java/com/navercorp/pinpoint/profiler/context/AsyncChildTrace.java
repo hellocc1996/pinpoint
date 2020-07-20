@@ -16,11 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.bootstrap.reporter.Reporter;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.injector.SingletonInjector;
+import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
+import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
@@ -53,6 +58,13 @@ public class AsyncChildTrace implements Trace {
     private final int asyncId;
     private final short asyncSequence;
 
+    private Reporter reporter;
+
+    @Inject
+    public void injectReporter(Reporter reporter){
+        this.reporter=reporter;
+    }
+
     public AsyncChildTrace(final TraceRoot traceRoot, CallStack callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling,
                              SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final int asyncId, final short asyncSequence) {
 
@@ -67,6 +79,7 @@ public class AsyncChildTrace implements Trace {
         this.asyncSequence = asyncSequence;
 
         traceBlockBegin(ASYNC_BEGIN_STACK_ID);
+
     }
 
 
@@ -182,7 +195,19 @@ public class AsyncChildTrace implements Trace {
         if (spanEvent.isTimeRecording()) {
             spanEvent.markAfterTime();
         }
+
+        //判断是否需要上报
+        SingletonInjector singletonInjector = SingletonInjector.getUniqueInstance();
+        if (singletonInjector.getInjector() != null) {
+            Reporter reporter = singletonInjector.getInjector().getInstance(Reporter.class);
+            if (reporter != null && !reporter.isReporting()) {
+                return;
+            }
+
+        }
+        
         logSpan(spanEvent);
+        
     }
 
     private void logSpan(SpanEvent spanEvent) {

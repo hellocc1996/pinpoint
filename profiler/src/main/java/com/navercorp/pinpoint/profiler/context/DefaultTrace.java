@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.bootstrap.reporter.Reporter;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootSupport;
+import com.navercorp.pinpoint.profiler.context.injector.SingletonInjector;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
 import org.slf4j.Logger;
@@ -57,7 +59,6 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
     private boolean closed = false;
 
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
-
 
     public DefaultTrace(Span span, CallStack callStack, Storage storage, AsyncContextFactory asyncContextFactory, boolean sampling,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, ActiveTraceHandle activeTraceHandle) {
@@ -151,6 +152,17 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
         if (spanEvent.isTimeRecording()) {
             spanEvent.markAfterTime();
         }
+
+        //判断是否需要上报
+        SingletonInjector singletonInjector = SingletonInjector.getUniqueInstance();
+        if (singletonInjector.getInjector() != null) {
+            Reporter reporter = singletonInjector.getInjector().getInstance(Reporter.class);
+            if (reporter != null && !reporter.isReporting()) {
+                return;
+            }
+
+        }
+
         logSpan(spanEvent);
     }
 

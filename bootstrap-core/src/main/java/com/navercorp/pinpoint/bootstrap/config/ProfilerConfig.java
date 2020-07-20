@@ -94,6 +94,8 @@ public interface ProfilerConfig {
 
     int getSamplingRate();
 
+    int getReportingRate();
+
     boolean isIoBufferingEnable();
 
     int getIoBufferingBufferSize();
