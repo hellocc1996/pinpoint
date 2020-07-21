@@ -127,6 +127,7 @@ public final class DefaultTrace implements Trace, TraceRootSupport {
 
     @Override
     public void traceBlockEnd(int stackId) {
+        logger.error("traceBlockEnd enter..,stackId={},trace={}",stackId,this.toString());
         if (closed) {
             if (isWarn) {
                 stackDump("already closed trace");
