@@ -75,4 +75,14 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
         final long continuedTransactionId = this.idGenerator.nextContinuedTransactionId();
         return new DefaultTraceRoot(traceId, this.agentId, startTime, continuedTransactionId);
     }
+
+    @Override
+    public TraceRoot continueTraceRoot(TraceId traceId,boolean reporting) {
+        if (traceId == null) {
+            throw new NullPointerException("traceId must not be null");
+        }
+        final long startTime = traceStartTime();
+        final long continuedTransactionId = this.idGenerator.nextContinuedTransactionId();
+        return new DefaultTraceRoot(traceId, this.agentId, startTime, continuedTransactionId,reporting);
+    }
 }
