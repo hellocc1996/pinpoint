@@ -28,6 +28,8 @@ public class DefaultTraceRoot implements TraceRoot {
     private final String agentId;
     private final long localTransactionId;
 
+    private final boolean reporting;
+
     private final long traceStartTime;
 
     private final Shared shared = new DefaultShared();
@@ -36,6 +38,15 @@ public class DefaultTraceRoot implements TraceRoot {
     public DefaultTraceRoot(TraceId traceId, String agentId, long traceStartTime, long localTransactionId) {
         this.traceId = Assert.requireNonNull(traceId, "traceId must not be null");
         this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.traceStartTime = traceStartTime;
+        this.localTransactionId = localTransactionId;
+        this.reporting=false;
+    }
+
+    public DefaultTraceRoot(TraceId traceId, String agentId, long traceStartTime, long localTransactionId,boolean reporting) {
+        this.traceId = Assert.requireNonNull(traceId, "traceId must not be null");
+        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.reporting = Assert.requireNonNull(reporting, "reporting must not be null");
         this.traceStartTime = traceStartTime;
         this.localTransactionId = localTransactionId;
     }
@@ -64,13 +75,16 @@ public class DefaultTraceRoot implements TraceRoot {
         return shared;
     }
 
-
-
+    @Override
+    public boolean getReporting() {
+        return reporting;
+    }
 
     @Override
     public String toString() {
         return "DefaultTraceRoot{" +
                 "traceId=" + traceId +
+                "reporting=" + reporting +
                 ", agentId='" + agentId + '\'' +
                 ", traceStartTime=" + traceStartTime +
                 '}';

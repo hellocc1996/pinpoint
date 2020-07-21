@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.reporter.Reporter;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -45,6 +46,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
     private final StorageFactory storageFactory;
     private final Sampler sampler;
+    private final Reporter reporter;
 
     private final IdGenerator idGenerator;
     private final AsyncContextFactory asyncContextFactory;
@@ -58,13 +60,14 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
 
     public DefaultBaseTraceFactory(TraceRootFactory traceRootFactory, CallStackFactory callStackFactory, StorageFactory storageFactory,
-                                   Sampler sampler, IdGenerator idGenerator, AsyncContextFactory asyncContextFactory,
+                                   Sampler sampler, Reporter reporter,IdGenerator idGenerator, AsyncContextFactory asyncContextFactory,
                                    SpanFactory spanFactory, RecorderFactory recorderFactory, ActiveTraceRepository activeTraceRepository) {
 
         this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory must not be null");
         this.callStackFactory = Assert.requireNonNull(callStackFactory, "callStackFactory must not be null");
         this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory must not be null");
         this.sampler = Assert.requireNonNull(sampler, "sampler must not be null");
+        this.reporter=reporter;
         this.idGenerator = Assert.requireNonNull(idGenerator, "idGenerator must not be null");
         this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
 
@@ -80,7 +83,7 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         // TODO need to modify how to bind a datasender
         // always set true because the decision of sampling has been  made on previous nodes
         // TODO need to consider as a target to sample in case Trace object has a sampling flag (true) marked on previous node.
-        final TraceRoot traceRoot = traceRootFactory.continueTraceRoot(traceId);
+        final TraceRoot traceRoot = traceRootFactory.continueTraceRoot(traceId,true);
         final Span span = spanFactory.newSpan(traceRoot);
 
         final Storage storage = storageFactory.createStorage(traceRoot);
@@ -110,8 +113,9 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     public Trace newTraceObject() {
         // TODO need to modify how to inject a datasender
         final boolean sampling = sampler.isSampling();
+        final boolean reporting = reporter.isReporting();
         if (sampling) {
-            final TraceRoot traceRoot = traceRootFactory.newTraceRoot();
+            final TraceRoot traceRoot = traceRootFactory.newTraceRoot(reporting);
             final Span span = spanFactory.newSpan(traceRoot);
 
             final Storage storage = storageFactory.createStorage(traceRoot);
@@ -163,8 +167,9 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     public Trace continueAsyncTraceObject(final TraceId traceId) {
 
         final boolean sampling = true;
+        final boolean reporting = true;
 
-        final TraceRoot traceRoot = traceRootFactory.continueTraceRoot(traceId);
+        final TraceRoot traceRoot = traceRootFactory.continueTraceRoot(traceId,reporting);
         final Span span = spanFactory.newSpan(traceRoot);
         final Storage storage = storageFactory.createStorage(traceRoot);
         final CallStack callStack = callStackFactory.newCallStack(traceRoot);
@@ -190,9 +195,10 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     public Trace newAsyncTraceObject() {
 
         final boolean sampling = sampler.isSampling();
+        final boolean reporting = reporter.isReporting();
         if (sampling) {
 
-            final TraceRoot traceRoot = traceRootFactory.newTraceRoot();
+            final TraceRoot traceRoot = traceRootFactory.newTraceRoot(reporting);
             final Span span = spanFactory.newSpan(traceRoot);
 
             final Storage storage = storageFactory.createStorage(traceRoot);

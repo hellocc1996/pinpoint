@@ -53,6 +53,14 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
         return new DefaultTraceRoot(traceId, this.agentId, startTime, localTransactionId);
     }
 
+    @Override
+    public TraceRoot newTraceRoot(boolean reporting) {
+        final long localTransactionId = idGenerator.nextTransactionId();
+        final TraceId traceId = traceIdFactory.newTraceId(localTransactionId);
+        final long startTime = traceStartTime();
+        return new DefaultTraceRoot(traceId, this.agentId, startTime, localTransactionId,reporting);
+    }
+
     private long traceStartTime() {
         return System.currentTimeMillis();
     }

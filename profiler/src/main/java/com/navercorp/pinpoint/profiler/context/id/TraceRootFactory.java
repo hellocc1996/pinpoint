@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.id;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.reporter.Reporter;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -25,5 +26,9 @@ public interface TraceRootFactory {
 
     TraceRoot newTraceRoot();
 
+    TraceRoot newTraceRoot(boolean reporting);
+
     TraceRoot continueTraceRoot(TraceId traceId);
+
+    TraceRoot continueTraceRoot(TraceId traceId,boolean reporting);
 }
